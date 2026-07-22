@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 55% 96%;
+    --foreground: 30 10% 16%;
+    --card: 0 0% 100%;
+    --card-foreground: 30 10% 16%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 10% 16%;
+    --primary: 14 73% 55%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 40 40% 90%;
+    --secondary-foreground: 30 10% 16%;
+    --muted: 40 30% 92%;
+    --muted-foreground: 30 8% 42%;
+    --accent: 40 60% 88%;
+    --accent-foreground: 30 10% 16%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 30 10% 20%;
+    --input: 30 10% 20%;
+    --ring: 14 73% 55%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    background-color: #faf5ea;
+    color: #2e2a26;
+    font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', -apple-system, sans-serif;
+    /* 纸张纹理 */
+    background-image: radial-gradient(#eadfc8 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+}
+
+@layer utilities {
+  .ink-border {
+    @apply border-2 border-[#2e2a26];
+  }
+  .hard-shadow {
+    box-shadow: 5px 5px 0 #2e2a26;
+  }
+  .hard-shadow-sm {
+    box-shadow: 3px 3px 0 #2e2a26;
+  }
+  .hard-shadow-none-hover:hover {
+    box-shadow: none;
+    transform: translate(3px, 3px);
+  }
+  .story-font {
+    font-family: 'Kaiti SC', 'KaiTi', 'STKaiti', serif;
+  }
+}
+
+/* 闪卡翻转 */
+.flip-card {
+  perspective: 1200px;
+}
+.flip-inner {
+  transition: transform 0.55s cubic-bezier(0.4, 0.1, 0.2, 1);
+  transform-style: preserve-3d;
+  position: relative;
+}
+.flip-inner.flipped {
+  transform: rotateY(180deg);
+}
+.flip-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  position: absolute;
+  inset: 0;
+}
+.flip-back {
+  transform: rotateY(180deg);
+}
+
+/* 剧情词呼吸高亮 */
+@keyframes glowPulse {
+  0%, 100% { background-color: rgba(225, 90, 59, 0.18); }
+  50% { background-color: rgba(225, 90, 59, 0.45); }
+}
+.word-glow {
+  animation: glowPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.floaty {
+  animation: floaty 4s ease-in-out infinite;
+}
