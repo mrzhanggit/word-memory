@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { HashRouter } from 'react-router'
 import './index.css'
 import App from './App.tsx'
+import { AuthProvider } from './hooks/useAuth'
 
 // 使用 HashRouter：路由信息放在 URL 的 # 之后（如 /word-memory/#/family/xxx）。
 // 这样在 GitHub Pages（尤其是绑定了 apex 自定义域的项目页）下，
@@ -11,7 +12,9 @@ import App from './App.tsx'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HashRouter>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </HashRouter>
   </StrictMode>,
 )

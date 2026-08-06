@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router';
 import { BookOpenText, Brain, Home, Layers, LetterText, BarChart3, Swords } from 'lucide-react';
 import { ProgressContext, useProgress } from '../hooks/progressContext';
+import { useAuth } from '../hooks/useAuth';
+import AuthModal from './AuthModal';
 
 const nav = [
   { to: '/', label: '方法', icon: Home, end: true },
@@ -13,6 +16,8 @@ const nav = [
 
 export default function Layout() {
   const progressApi = useProgress();
+  const { user, loading, signOut, cloudReady } = useAuth();
+  const [showAuth, setShowAuth] = useState(false);
   return (
     <ProgressContext.Provider value={progressApi}>
       <div className="min-h-screen flex flex-col">
@@ -44,6 +49,27 @@ export default function Layout() {
                   {n.label}
                 </NavLink>
               ))}
+              {cloudReady && !loading &&
+                (user ? (
+                  <span className="flex items-center gap-1.5 pl-1">
+                    {progressApi.syncing && (
+                      <span className="text-xs text-[#e15a3b] font-bold hidden md:block">同步中…</span>
+                    )}
+                    <button
+                      onClick={() => signOut()}
+                      className="px-2.5 py-1.5 rounded-xl text-sm font-bold border-2 border-[#2e2a26] bg-white hover:bg-[#2e2a26]/8"
+                    >
+                      退出
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => setShowAuth(true)}
+                    className="px-3 py-1.5 rounded-xl text-sm font-bold bg-[#e15a3b] text-white hover:opacity-90"
+                  >
+                    登录同步
+                  </button>
+                ))}
             </nav>
           </div>
         </header>
@@ -53,6 +79,7 @@ export default function Layout() {
         <footer className="border-t-2 border-[#2e2a26]/15 py-6 text-center text-xs text-[#2e2a26]/50">
           图像是最好的记忆体 · 方法源自《图像英文记忆法》
         </footer>
+        <AuthModal open={showAuth} onClose={() => setShowAuth(false)} />
       </div>
     </ProgressContext.Provider>
   );
