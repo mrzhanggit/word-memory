@@ -16,6 +16,8 @@ function memoryImageSync(): Plugin {
   return {
     name: 'memory-image-sync',
     buildStart() {
+      // 精简部署（如 GitHub Pages 不打包插图）时跳过 133M 图片同步
+      if (process.env.SKIP_IMAGE_SYNC) return
       runImageSync()
     },
     configureServer(server) {

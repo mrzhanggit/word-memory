@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
-import { ArrowLeft, BookOpenText, Check, Lightbulb, PenLine, Quote, Swords, Volume2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpenText, Check, Lightbulb, PartyPopper, PenLine, Quote, Swords, Volume2 } from 'lucide-react';
 import { families } from '../data/families';
 import { speak } from '../hooks/useProgress';
 import { useProgressCtx } from '../hooks/progressContext';
@@ -26,6 +26,16 @@ export default function FamilyDetail() {
 
   const wordMap = new Map(family.words.map((w) => [w.word, w]));
   const masteredCount = family.words.filter((w) => progress[w.word]?.mastered).length;
+  const thisDone = family.words.every((w) => progress[w.word]?.mastered);
+
+  // 词族间导航：下一个未完成的词族（从当前往后找，绕回开头），上一族按顺序取
+  const idx = families.findIndex((f) => f.id === family.id);
+  const nextUnfinished = families
+    .slice(idx + 1)
+    .concat(families.slice(0, idx + 1))
+    .find((f) => !f.words.every((w) => progress[w.word]?.mastered));
+  const prevFamily = families[(idx - 1 + families.length) % families.length];
+  const hasNext = nextUnfinished && nextUnfinished.id !== family.id;
 
   const clickSegment = (word?: string) => {
     if (!word) return;
@@ -191,6 +201,54 @@ export default function FamilyDetail() {
             >
               {saved ? '已保存 ✓' : '保存我的故事'}
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 词族间导航 */}
+      <section className="mt-10">
+        <div className="bg-white rounded-3xl ink-border hard-shadow p-5">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <Link
+              to={`/family/${prevFamily.id}`}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white ink-border hard-shadow-sm hard-shadow-none-hover transition-all hover:bg-[#2e2a26]/4 min-w-0"
+            >
+              <ArrowLeft className="w-4 h-4 shrink-0 text-[#2e2a26]/50" />
+              <span className="min-w-0">
+                <span className="block text-[10px] font-black tracking-widest text-[#2e2a26]/45">上一族</span>
+                <span className="block text-sm font-bold truncate max-w-[140px]">{prevFamily.title}</span>
+              </span>
+            </Link>
+
+            <div className="text-center shrink-0">
+              {thisDone ? (
+                <span className="inline-flex items-center gap-1.5 text-sm font-black text-[#2f6f5e]">
+                  <PartyPopper className="w-4 h-4" /> 本族已学完
+                </span>
+              ) : (
+                <span className="text-sm font-black text-[#2e2a26]/70">
+                  本族 {masteredCount}/{family.words.length} 词
+                </span>
+              )}
+            </div>
+
+            {hasNext ? (
+              <Link
+                to={`/family/${nextUnfinished!.id}`}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-white ink-border hard-shadow-sm hard-shadow-none-hover transition-all min-w-0"
+                style={{ backgroundColor: nextUnfinished!.color }}
+              >
+                <span className="min-w-0">
+                  <span className="block text-[10px] font-black tracking-widest text-white/75">下一族未学</span>
+                  <span className="block text-sm font-bold truncate max-w-[140px]">{nextUnfinished!.title}</span>
+                </span>
+                <ArrowRight className="w-4 h-4 shrink-0" />
+              </Link>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-[#2e2a26]/6 text-sm font-black text-[#2e2a26]/60">
+                <PartyPopper className="w-4 h-4" /> 全部学完啦
+              </span>
+            )}
           </div>
         </div>
       </section>
