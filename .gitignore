@@ -8,13 +8,9 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+# 构建产物统一忽略（dist-ghpages 是独立部署仓库，有自己的 .git，在目录内单独推送）
 dist
-dist-ssr
-dist-deploy
-dist-deploy-2
-dist-deploy-compress
-dist-gh
-dist-ghpages
+dist-*
 tmp
 *.local
 
