@@ -14,6 +14,12 @@ dist-*
 tmp
 *.local
 
+# 发音音频（26MB+）：由 scripts/fetch-youdao-audio.mjs 生成，作为待上传 Supabase Storage 的暂存，
+# 不入版本库；需要时重跑脚本 9 秒即可重建。
+public/audio/
+# 抓取脚本的试跑输出
+scripts/out/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

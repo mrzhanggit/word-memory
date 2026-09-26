@@ -5,6 +5,7 @@ import { families } from '../data/families';
 import { speak } from '../hooks/useProgress';
 import { useProgressCtx } from '../hooks/progressContext';
 import SceneImage from '../components/SceneImage';
+import { loadDictionary, lookup, type Dictionary } from '../lib/dictionary';
 
 type Step = 'scene' | 'cards' | 'done';
 
@@ -16,7 +17,19 @@ export default function Study() {
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [results, setResults] = useState<Record<string, boolean>>({});
+  const [dict, setDict] = useState<Dictionary | null>(null);
   const { markResult, progress } = useProgressCtx();
+
+  // 词典按需加载（只拉一次，供翻卡背面显示音标）
+  useEffect(() => {
+    let alive = true;
+    loadDictionary().then((d) => {
+      if (alive) setDict(d);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     setStep('scene');
@@ -26,6 +39,7 @@ export default function Study() {
   }, [familyId]);
 
   const word = family.words[idx];
+  const entry = word ? lookup(dict, word.word) : undefined;
 
   const answer = (ok: boolean) => {
     markResult(word.word, ok);
@@ -127,6 +141,7 @@ export default function Study() {
               {/* 背面：英文 */}
               <div className="flip-face flip-back rounded-3xl ink-border hard-shadow flex flex-col items-center justify-center p-8 text-white" style={{ backgroundColor: family.color }}>
                 <p className="font-mono font-black text-5xl tracking-wide mb-2">{word.display}</p>
+                {entry?.us && <p className="font-mono text-white/85 text-base mb-1">/{entry.us}/</p>}
                 <p className="text-white/80 font-bold mb-1">{word.cn}</p>
                 {word.note && <p className="text-white/70 text-sm mb-4">{word.note}</p>}
                 <button

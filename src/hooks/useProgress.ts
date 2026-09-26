@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ProgressMap, WordProgress } from '../types';
 import { supabase } from '../lib/supabase';
+import { resolveAudioUrl, type Accent } from '../lib/audioUrl';
 import { useAuth } from './useAuth';
 
 const KEY = 'image-vocab-progress-v1';
@@ -215,8 +216,44 @@ export function useProgress() {
   };
 }
 
-// 发音：Web Speech API
-export function speak(text: string) {
+// ---------- 发音 ----------
+//
+// 改为播放固定音频文件，而不是交给设备本地 TTS 合成。
+// 这是跨设备发音一致的关键：音频来自同一个音源（自持音频或有道发音接口），
+// 所有设备听到的完全相同；此前的 Web Speech API 音质由各设备引擎决定，
+// 在部分 Android / 微信内置浏览器上会含糊到听不出。
+// 原生 TTS 仅作为最后兜底。
+
+let currentAudio: HTMLAudioElement | null = null;
+
+export function speak(text: string, accent: Accent = 'us') {
+  const url = resolveAudioUrl(text, accent);
+
+  if (url && typeof Audio !== 'undefined') {
+    try {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+      }
+      const audio = new Audio(url);
+      audio.preload = 'auto';
+      currentAudio = audio;
+      const played = audio.play();
+      if (played && typeof played.catch === 'function') {
+        played.catch(() => speakWithTts(text));
+      }
+      return;
+    } catch {
+      /* 落到 TTS 兜底 */
+    }
+  }
+
+  // 非英文文本（有道发音接口不支持中文）时也走这里
+  speakWithTts(text);
+}
+
+/** 兜底：浏览器原生 TTS。音质随设备而异，仅在音频播不出来时使用。 */
+function speakWithTts(text: string) {
   try {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'en-US';

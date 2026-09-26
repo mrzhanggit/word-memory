@@ -5,6 +5,7 @@ import { families } from '../data/families';
 import { speak } from '../hooks/useProgress';
 import { useProgressCtx } from '../hooks/progressContext';
 import SceneImage from '../components/SceneImage';
+import WordCard from '../components/WordCard';
 
 export default function FamilyDetail() {
   const { id } = useParams();
@@ -114,12 +115,17 @@ export default function FamilyDetail() {
             )}
           </p>
           {activeWord && wordMap.get(activeWord) && (
-            <div className="mt-5 inline-flex items-center gap-3 rounded-2xl px-5 py-3 ink-border hard-shadow-sm" style={{ backgroundColor: '#fff8ef' }}>
-              <span className="font-mono font-black text-2xl tracking-wide">{wordMap.get(activeWord)!.display}</span>
-              <span className="text-[#2e2a26]/60 font-bold">{wordMap.get(activeWord)!.cn}</span>
-              <button onClick={() => speak(activeWord)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5" aria-label="播放发音">
-                <Volume2 className="w-4 h-4" />
-              </button>
+            <div className="mt-5">
+              <div className="inline-flex items-center gap-3 rounded-2xl px-5 py-3 ink-border hard-shadow-sm" style={{ backgroundColor: '#fff8ef' }}>
+                <span className="font-mono font-black text-2xl tracking-wide">{wordMap.get(activeWord)!.display}</span>
+                <span className="text-[#2e2a26]/60 font-bold">{wordMap.get(activeWord)!.cn}</span>
+                <button onClick={() => speak(activeWord)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5" aria-label="播放发音">
+                  <Volume2 className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="mt-3">
+                <WordCard word={activeWord} color={family.color} />
+              </div>
             </div>
           )}
         </div>
