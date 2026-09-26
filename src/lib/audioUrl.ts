@@ -24,13 +24,21 @@ export function isSpeakable(text: string): boolean {
   return /^[a-zA-Z][a-zA-Z\s'’,.!?-]*$/.test(text.trim());
 }
 
-/** 解析发音音频 URL；返回 null 表示该文本无法发音 */
+/**
+ * 解析发音音频 URL；返回 null 表示该文本无法发音。
+ *
+ * 注意：自持音频（VITE_AUDIO_BASE）只覆盖**单个单词**——批量下载时按词条抓的，
+ * 文件名为 `word.mp3` / `word_uk.mp3`。整句（例句）没有自持文件，若也拼到自持基址
+ * 会 404 并回退到设备 TTS，反而丢掉一致性，因此多词文本仍走有道固定接口。
+ * 两者音源都是固定的，跨设备结果一致。
+ */
 export function resolveAudioUrl(text: string, accent: Accent = 'us'): string | null {
   const t = text.trim();
   if (!t || !isSpeakable(t)) return null;
 
+  const isSingleWord = !/\s/.test(t);
   const base = (import.meta.env.VITE_AUDIO_BASE as string | undefined)?.replace(/\/+$/, '');
-  if (base) return `${base}/${audioFileName(t, accent)}`;
+  if (base && isSingleWord) return `${base}/${audioFileName(t, accent)}`;
 
   return `${YOUDAO_VOICE}?audio=${encodeURIComponent(t)}&type=${accent === 'uk' ? 1 : 2}`;
 }
